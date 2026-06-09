@@ -12,7 +12,7 @@
  */
 
 // ===================== 通用 GPIO =============================
-#define PIN_LED_STATUS      48      // 板载状态 LED (ESP32-S3 常见 GPIO48)
+#define PIN_LED_STATUS      48      // 板载 WS2812/RGB 状态灯数据脚
 #define PIN_BUTTON_BOOT     36      // BOOT 按钮 (文档标注 GPIO35/36/45 均为 BOOT)
 
 // ===================== USB (硬件占用, 勿用) ====================

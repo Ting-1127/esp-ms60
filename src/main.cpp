@@ -7,12 +7,12 @@
  */
 
 #include "project.h"
-#include "drivers/gpio_driver.h"
+#include "drivers/ws2812_status_led.h"
 #include "modules/system_monitor/system_monitor.h"
 #include "services/service_manager.h"
 
 // ===================== 全局驱动 ================================
-GpioDriver   g_led(PIN_LED_STATUS, OUTPUT);
+Ws2812StatusLed   g_status_led(PIN_LED_STATUS);
 
 // ===================== Arduino setup() ========================
 void setup() {
@@ -33,7 +33,7 @@ void setup() {
 #endif
 
     // ---- 2. 驱动初始化 ----
-    if (!g_led.begin()) {
+    if (!g_status_led.begin()) {
         LOG_ERROR("主程序", "LED 初始化失败");
     }
 
@@ -43,7 +43,7 @@ void setup() {
     sm.begin_all();
 
     // ---- 4. 启动就绪信号 ----
-    g_led.on();
+    g_status_led.on();
     LOG_INFO("主程序", "===== 系统就绪 =====");
 }
 
@@ -53,7 +53,7 @@ void loop() {
 
     // 心跳 (LED 闪烁)
     static TimerUtils heartbeat(500);
-    if (heartbeat.ready()) g_led.toggle();
+    if (heartbeat.ready()) g_status_led.toggle();
 
 #if WDT_TIMEOUT_SEC > 0
     esp_task_wdt_reset();
