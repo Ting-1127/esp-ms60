@@ -67,6 +67,7 @@ bool BleControlModule::begin() {
 
     NimBLEAdvertising* advertising = NimBLEDevice::getAdvertising();
     advertising->addServiceUUID(BLE_CTRL_SERVICE_UUID);
+    advertising->setName(BLE_DEVICE_NAME);
     advertising->start();
 
     LOG_INFO("BLE控制", "广播已启动, service=%s", BLE_CTRL_SERVICE_UUID);
