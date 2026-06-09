@@ -10,7 +10,6 @@
 #include "drivers/gpio_driver.h"
 #include "modules/system_monitor/system_monitor.h"
 #include "services/service_manager.h"
-#include "esp_task_wdt.h"
 
 // ===================== 全局驱动 ================================
 GpioDriver   g_led(PIN_LED_STATUS, OUTPUT);
