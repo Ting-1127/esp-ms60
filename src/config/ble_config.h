@@ -13,3 +13,4 @@
 #define BLE_DATA_TX_UUID             "d4f50003-5f6b-4f1c-9b0a-8b4f7d100000"
 
 #define BLE_MAX_RX_BYTES             512
+#define BLE_NOTIFY_CHUNK_BYTES       20

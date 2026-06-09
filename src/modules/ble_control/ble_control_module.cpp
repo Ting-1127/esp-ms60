@@ -164,16 +164,24 @@ void BleControlModule::process_pending_rx() {
 void BleControlModule::notify_control(const String& message) {
     if (!_connected || !_ctrl_tx) return;
 
-    _ctrl_tx->setValue(message.c_str());
-    _ctrl_tx->notify();
-    LOG_DEBUG("BLE控制", "TX CTRL len=%u", (unsigned)message.length());
+    for (unsigned int offset = 0; offset < message.length(); offset += BLE_NOTIFY_CHUNK_BYTES) {
+        String chunk = message.substring(offset, offset + BLE_NOTIFY_CHUNK_BYTES);
+        _ctrl_tx->setValue(chunk.c_str());
+        _ctrl_tx->notify();
+        delay(5);
+    }
+    LOG_INFO("BLE控制", "TX CTRL len=%u", (unsigned)message.length());
 }
 
 void BleControlModule::notify_data(const String& message) {
     if (!_connected || !_data_tx) return;
 
-    _data_tx->setValue(message.c_str());
-    _data_tx->notify();
+    for (unsigned int offset = 0; offset < message.length(); offset += BLE_NOTIFY_CHUNK_BYTES) {
+        String chunk = message.substring(offset, offset + BLE_NOTIFY_CHUNK_BYTES);
+        _data_tx->setValue(chunk.c_str());
+        _data_tx->notify();
+        delay(5);
+    }
     LOG_DEBUG("BLE控制", "TX DATA len=%u", (unsigned)message.length());
 }
 
