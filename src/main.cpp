@@ -8,6 +8,7 @@
 
 #include "project.h"
 #include "drivers/ws2812_status_led.h"
+#include "modules/ble_control/ble_control_module.h"
 #include "modules/system_monitor/system_monitor.h"
 #include "services/service_manager.h"
 
@@ -40,6 +41,7 @@ void setup() {
     // ---- 3. 模块注册 & 启动 ----
     auto& sm = ServiceManager::instance();
     sm.register_module(&SystemMonitor::instance());
+    sm.register_module(&BleControlModule::instance());
     sm.begin_all();
 
     // ---- 4. 启动就绪信号 ----

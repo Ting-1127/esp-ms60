@@ -7,3 +7,5 @@
 
 #include "board_pins.h"
 #include "system_config.h"
+#include "ble_config.h"
+#include "protocol_config.h"
