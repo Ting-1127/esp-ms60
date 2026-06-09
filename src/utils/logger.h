@@ -24,14 +24,16 @@ enum class LogLevel {
 // 可通过串口修改变量调整级别, 默认在 system_config.h 中定义, 这里给出 fallback
 #ifndef LOG_LEVEL_CURRENT
   #ifdef CORE_DEBUG_LEVEL
-    #if CORE_DEBUG_LEVEL >= 5
+    #if CORE_DEBUG_LEVEL >= 4
       #define LOG_LEVEL_CURRENT  LogLevel::DEBUG
-    #elif CORE_DEBUG_LEVEL >= 4
-      #define LOG_LEVEL_CURRENT  LogLevel::INFO
     #elif CORE_DEBUG_LEVEL >= 3
+      #define LOG_LEVEL_CURRENT  LogLevel::INFO
+    #elif CORE_DEBUG_LEVEL >= 2
       #define LOG_LEVEL_CURRENT  LogLevel::WARN
-    #else
+    #elif CORE_DEBUG_LEVEL >= 1
       #define LOG_LEVEL_CURRENT  LogLevel::ERROR
+    #else
+      #define LOG_LEVEL_CURRENT  LogLevel::NONE
     #endif
   #else
     #define LOG_LEVEL_CURRENT    LogLevel::INFO
