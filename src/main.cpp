@@ -28,16 +28,9 @@ void setup() {
     LOG_INFO("主程序", "========================================");
 
 #if WDT_TIMEOUT_SEC > 0
-    {
-        esp_task_wdt_config_t wdt_cfg = {
-            .timeout_ms    = (uint32_t)(WDT_TIMEOUT_SEC) * 1000,
-            .idle_core_mask = 0,
-            .trigger_panic  = true
-        };
-        esp_task_wdt_init(&wdt_cfg);
-        esp_task_wdt_add(NULL);
-        LOG_INFO("主程序", "看门狗已启用, 超时=%d秒", WDT_TIMEOUT_SEC);
-    }
+    esp_task_wdt_init(WDT_TIMEOUT_SEC, true);
+    esp_task_wdt_add(NULL);
+    LOG_INFO("主程序", "看门狗已启用, 超时=%d秒", WDT_TIMEOUT_SEC);
 #endif
 
     // ---- 2. 驱动初始化 ----
