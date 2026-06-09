@@ -17,4 +17,4 @@
 #define TASK_MONITOR_INTERVAL_MS      5000    // 系统监控报告间隔
 
 // ===================== 看门狗 =================================
-#define WDT_TIMEOUT_SEC              10      // 看门狗超时 (秒), 0 = 禁用
+#define WDT_TIMEOUT_SEC              0       // 看门狗超时 (秒), 0 = 禁用 (暂时关闭排查 boot loop)
