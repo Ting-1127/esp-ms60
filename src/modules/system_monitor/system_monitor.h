@@ -6,16 +6,17 @@
  */
 
 #include "project.h"
+#include "services/service_manager.h"
 
-class SystemMonitor : private NonCopyable {
+class SystemMonitor : private NonCopyable, public IModule {
 public:
     static SystemMonitor& instance() {
         static SystemMonitor inst;
         return inst;
     }
 
-    bool begin();
-    void loop();   ///< 主循环中持续调用
+    bool begin() override;
+    void loop() override;
 
 private:
     SystemMonitor() = default;
