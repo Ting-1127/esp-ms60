@@ -14,4 +14,4 @@
 // GitHub OTA 源
 #define OTA_GITHUB_OWNER     "Ting-1127"
 #define OTA_GITHUB_REPO      "esp-ms60"
-#define OTA_FIRMWARE_FILE    "ms-60-firmware.zip"
+#define OTA_FIRMWARE_FILE    "firmware.bin"
