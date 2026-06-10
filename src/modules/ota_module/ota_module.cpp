@@ -108,7 +108,7 @@ void OtaModule::run_ota() {
     }
 
     WiFiClient* stream = http.getStreamPtr();
-    uint8_t buf[4096];
+    static uint8_t buf[2048];
     int written = 0;
 
     while (http.connected() && written < totalSize) {
@@ -121,7 +121,7 @@ void OtaModule::run_ota() {
 
         size_t available = stream->available();
         if (available) {
-            int bytesRead = stream->readBytes(buf, min((size_t)4096, available));
+            int bytesRead = stream->readBytes(buf, min((size_t)sizeof(buf), available));
             size_t bytesWritten = Update.write(buf, bytesRead);
             if (bytesWritten != (size_t)bytesRead) {
                 set_state(State::Failed, 0, "写入失败");
