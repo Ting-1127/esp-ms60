@@ -134,10 +134,8 @@ void OtaModule::run_ota() {
             int pct = (written * 100) / totalSize;
             if (pct != _progress) {
                 _progress = pct;
-                // 每 5% 发一次事件
-                if (pct % 5 == 0) {
-                    set_state(State::Downloading, pct, "下载中...");
-                }
+                // 每 1% 发一次事件
+                set_state(State::Downloading, pct, "下载中...");
             }
         }
         delay(1);
