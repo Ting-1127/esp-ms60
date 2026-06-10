@@ -150,8 +150,8 @@ String CommandRouter::handle_ota_check(const ControlRequest& request) {
     String url = String("https://api.github.com/repos/") + OTA_GITHUB_OWNER + "/" + OTA_GITHUB_REPO + "/releases/latest";
     http.begin(url);
     http.addHeader("User-Agent", FW_NAME);
-    http.setConnectTimeout(5000);
-    http.setTimeout(5000);
+    http.setConnectTimeout(10000);
+    http.setTimeout(10000);
 
     int code = http.GET();
     if (code == 200) {
