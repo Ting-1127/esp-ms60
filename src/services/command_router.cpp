@@ -1,6 +1,9 @@
 #include "command_router.h"
 #include "modules/wifi_module/wifi_module.h"
 #include "modules/ota_module/ota_module.h"
+#include <HTTPClient.h>
+#include <ArduinoJson.h>
+#include <WiFi.h>
 
 String CommandRouter::handle(const ControlRequest& request, const RuntimeStatus& status) {
     if (request.cmd == PROTO_CMD_SYS_INFO)        return handle_sys_info(request);
@@ -133,9 +136,62 @@ String CommandRouter::handle_wifi_status(const ControlRequest& request, const Ru
 // ─── OTA ────────────────────────────────────────────────────────────
 
 String CommandRouter::handle_ota_check(const ControlRequest& request) {
-    StaticJsonDocument<256> data;
+    StaticJsonDocument<512> data;
     data["current_version"] = FW_VERSION;
-    data["update_available"] = false;
+
+    if (WiFi.status() != WL_CONNECTED) {
+        data["update_available"] = false;
+        data["message"] = "WiFi 未连接";
+        return ControlProtocol::make_response(request.id, true, PROTO_CODE_OK, "OK", data.as<JsonVariantConst>());
+    }
+
+    // 查询 GitHub Releases API
+    HTTPClient http;
+    String url = String("https://api.github.com/repos/") + OTA_GITHUB_OWNER + "/" + OTA_GITHUB_REPO + "/releases/latest";
+    http.begin(url);
+    http.addHeader("User-Agent", FW_NAME);
+    http.setConnectTimeout(5000);
+    http.setTimeout(5000);
+
+    int code = http.GET();
+    if (code == 200) {
+        DynamicJsonDocument resp(4096);
+        DeserializationError err = deserializeJson(resp, http.getString());
+        if (!err) {
+            const char* tag = resp["tag_name"];
+            // 查找固件下载 URL
+            const char* download_url = nullptr;
+            JsonArray assets = resp["assets"];
+            for (JsonObject asset : assets) {
+                const char* name = asset["name"];
+                if (name && strcmp(name, OTA_FIRMWARE_FILE) == 0) {
+                    download_url = asset["browser_download_url"];
+                    break;
+                }
+            }
+
+            bool update_available = false;
+            if (tag) {
+                String remote = tag;
+                if (remote.startsWith("v")) remote.remove(0, 1);
+                update_available = (remote != FW_VERSION);
+                data["latest_version"] = tag;
+            }
+
+            data["update_available"] = update_available;
+            if (update_available && download_url) {
+                data["url"] = download_url;
+            }
+        } else {
+            data["update_available"] = false;
+            data["message"] = "parse error";
+        }
+    } else {
+        data["update_available"] = false;
+        data["message"] = String("HTTP ") + code;
+    }
+    http.end();
+
     return ControlProtocol::make_response(request.id, true, PROTO_CODE_OK, "OK", data.as<JsonVariantConst>());
 }
 
