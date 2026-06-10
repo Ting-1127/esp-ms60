@@ -32,7 +32,8 @@ String CommandRouter::handle(const ControlRequest& request, const RuntimeStatus&
 
 String CommandRouter::handle_sys_info(const ControlRequest& request) {
     StaticJsonDocument<256> data;
-    data["fw"] = "esp-ms60";
+    data["fw"] = FW_NAME;
+    data["version"] = FW_VERSION;
     data["proto"] = PROTO_VERSION;
     data["chip"] = ESP.getChipModel();
     data["flash_mb"] = (uint32_t)(ESP.getFlashChipSize() / (1024 * 1024));
