@@ -20,6 +20,9 @@ public:
     bool load_wifi_credentials(String& ssid, String& password);
     void clear_wifi_credentials();
 
+    bool load_wifi_enabled();
+    void save_wifi_enabled(bool enabled);
+
 private:
     SettingsStore() = default;
 };

@@ -28,6 +28,8 @@
 #define PROTO_EVT_SYS_READY          "sys.ready"
 
 // WiFi 命令
+#define PROTO_CMD_WIFI_ON            "wifi.on"
+#define PROTO_CMD_WIFI_OFF           "wifi.off"
 #define PROTO_CMD_WIFI_SET           "wifi.set"
 #define PROTO_CMD_WIFI_CONNECT       "wifi.connect"
 #define PROTO_CMD_WIFI_DISCONNECT    "wifi.disconnect"

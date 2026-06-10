@@ -21,12 +21,16 @@ public:
     void loop() override;
 
     // 命令接口
+    bool wifi_on();
+    void wifi_off();
     bool set_credentials(const String& ssid, const String& password);
     bool connect();
     void disconnect();
     void clear_credentials();
+    bool is_enabled() const { return _enabled; }
 
     struct Status {
+        bool enabled;
         String status;   // "connected" | "disconnected" | "connecting" | "failed" | "unknown"
         String ssid;
         String ip;
@@ -47,6 +51,7 @@ private:
     void on_wifi_event(WiFiEvent_t event, WiFiEventInfo_t info);
     void try_reconnect();
 
+    bool _enabled = true;
     State _state = State::Idle;
     String _ssid;
     String _password;

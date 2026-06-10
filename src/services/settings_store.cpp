@@ -5,6 +5,7 @@ static Preferences s_prefs;
 static const char* NS = "wifi";
 static const char* KEY_SSID = "ssid";
 static const char* KEY_PASS = "pass";
+static const char* KEY_ENABLED = "wifi_en";
 
 bool SettingsStore::begin() {
     LOG_INFO("设置存储", "NVS 初始化");
@@ -41,4 +42,18 @@ void SettingsStore::clear_wifi_credentials() {
     s_prefs.clear();
     s_prefs.end();
     LOG_INFO("设置存储", "已清除 WiFi 凭据");
+}
+
+bool SettingsStore::load_wifi_enabled() {
+    s_prefs.begin(NS, true);
+    bool enabled = s_prefs.getBool(KEY_ENABLED, true);  // 默认开启
+    s_prefs.end();
+    return enabled;
+}
+
+void SettingsStore::save_wifi_enabled(bool enabled) {
+    s_prefs.begin(NS, false);
+    s_prefs.putBool(KEY_ENABLED, enabled);
+    s_prefs.end();
+    LOG_INFO("设置存储", "WiFi 开关: %s", enabled ? "开" : "关");
 }

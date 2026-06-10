@@ -7,30 +7,32 @@ bool WifiModule::begin() {
 
     SettingsStore::instance().begin();
 
-    WiFi.mode(WIFI_STA);
-    WiFi.setAutoReconnect(false);
+    _enabled = SettingsStore::instance().load_wifi_enabled();
+    LOG_INFO("WiFi模块", "NVS 开关状态: %s", _enabled ? "开" : "关");
 
     WiFi.onEvent([this](WiFiEvent_t event, WiFiEventInfo_t info) {
         on_wifi_event(event, info);
     });
 
-    // NVS 有凭据则自动连接
-    if (SettingsStore::instance().has_wifi_credentials()) {
-        SettingsStore::instance().load_wifi_credentials(_ssid, _password);
-        LOG_INFO("WiFi模块", "发现已保存凭据, ssid=%s", _ssid.c_str());
-        connect();
+    if (_enabled) {
+        WiFi.mode(WIFI_STA);
+        WiFi.setAutoReconnect(false);
+
+        if (SettingsStore::instance().has_wifi_credentials()) {
+            SettingsStore::instance().load_wifi_credentials(_ssid, _password);
+            LOG_INFO("WiFi模块", "发现已保存凭据, ssid=%s", _ssid.c_str());
+            connect();
+        }
+    } else {
+        WiFi.mode(WIFI_OFF);
+        LOG_INFO("WiFi模块", "WiFi 已关闭");
     }
 
     return true;
 }
 
 void WifiModule::loop() {
-    if (_state == State::Connecting) {
-        // 等待连接结果，超时 15 秒
-        if (WiFi.status() == WL_CONNECTED) {
-            // 由 on_wifi_event 处理
-        }
-    }
+    if (!_enabled) return;
 
     // 失败后自动重连
     if (_state == State::Failed && _reconnect_attempts < MAX_RECONNECT) {
@@ -56,6 +58,35 @@ bool WifiModule::set_credentials(const String& ssid, const String& password) {
     bool ok = SettingsStore::instance().save_wifi_credentials(ssid, password);
     LOG_INFO("WiFi模块", "凭据已保存: ssid=%s", ssid.c_str());
     return ok;
+}
+
+bool WifiModule::wifi_on() {
+    if (_enabled) return true;
+    _enabled = true;
+    SettingsStore::instance().save_wifi_enabled(true);
+    WiFi.mode(WIFI_STA);
+    WiFi.setAutoReconnect(false);
+    LOG_INFO("WiFi模块", "WiFi 已开启");
+    set_state(State::Idle);
+    // 有凭据则自动连接
+    if (_ssid.isEmpty()) {
+        SettingsStore::instance().load_wifi_credentials(_ssid, _password);
+    }
+    if (!_ssid.isEmpty()) {
+        connect();
+    }
+    return true;
+}
+
+void WifiModule::wifi_off() {
+    if (!_enabled) return;
+    _enabled = false;
+    SettingsStore::instance().save_wifi_enabled(false);
+    WiFi.disconnect(true);
+    WiFi.mode(WIFI_OFF);
+    _reconnect_attempts = MAX_RECONNECT;
+    set_state(State::Idle);
+    LOG_INFO("WiFi模块", "WiFi 已关闭");
 }
 
 bool WifiModule::connect() {
@@ -91,11 +122,12 @@ void WifiModule::clear_credentials() {
 
 WifiModule::Status WifiModule::get_status() const {
     Status s;
+    s.enabled = _enabled;
     switch (_state) {
         case State::Connected:  s.status = "connected"; break;
         case State::Connecting: s.status = "connecting"; break;
         case State::Failed:     s.status = "failed"; break;
-        default:                s.status = "disconnected"; break;
+        default:                s.status = _enabled ? "disconnected" : "off"; break;
     }
     s.ssid = _ssid;
     s.ip = _ip;
@@ -121,6 +153,7 @@ void WifiModule::set_state(State new_state) {
     // 生成事件
     Status st = get_status();
     StaticJsonDocument<256> data;
+    data["enabled"] = st.enabled;
     data["status"] = st.status;
     data["ssid"] = st.ssid;
     data["ip"] = st.ip;

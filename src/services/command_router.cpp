@@ -8,6 +8,8 @@ String CommandRouter::handle(const ControlRequest& request, const RuntimeStatus&
     if (request.cmd == PROTO_CMD_SYS_REBOOT)       return handle_sys_reboot(request);
 
     // WiFi
+    if (request.cmd == PROTO_CMD_WIFI_ON)           return handle_wifi_on(request, status);
+    if (request.cmd == PROTO_CMD_WIFI_OFF)          return handle_wifi_off(request, status);
     if (request.cmd == PROTO_CMD_WIFI_SET)         return handle_wifi_set(request, status);
     if (request.cmd == PROTO_CMD_WIFI_CONNECT)     return handle_wifi_connect(request, status);
     if (request.cmd == PROTO_CMD_WIFI_DISCONNECT)  return handle_wifi_disconnect(request, status);
@@ -65,6 +67,22 @@ String CommandRouter::handle_sys_reboot(const ControlRequest& request) {
 
 // ─── WiFi ───────────────────────────────────────────────────────────
 
+String CommandRouter::handle_wifi_on(const ControlRequest& request, const RuntimeStatus& status) {
+    if (!status.wifi) {
+        return ControlProtocol::make_empty_response(request.id, false, PROTO_CODE_INTERNAL_ERROR, "WiFi module unavailable");
+    }
+    status.wifi->wifi_on();
+    return ControlProtocol::make_empty_response(request.id, true, PROTO_CODE_OK, "wifi on");
+}
+
+String CommandRouter::handle_wifi_off(const ControlRequest& request, const RuntimeStatus& status) {
+    if (!status.wifi) {
+        return ControlProtocol::make_empty_response(request.id, false, PROTO_CODE_INTERNAL_ERROR, "WiFi module unavailable");
+    }
+    status.wifi->wifi_off();
+    return ControlProtocol::make_empty_response(request.id, true, PROTO_CODE_OK, "wifi off");
+}
+
 String CommandRouter::handle_wifi_set(const ControlRequest& request, const RuntimeStatus& status) {
     if (!status.wifi) {
         return ControlProtocol::make_empty_response(request.id, false, PROTO_CODE_INTERNAL_ERROR, "WiFi module unavailable");
@@ -104,6 +122,7 @@ String CommandRouter::handle_wifi_status(const ControlRequest& request, const Ru
     }
     auto st = status.wifi->get_status();
     StaticJsonDocument<256> data;
+    data["enabled"] = st.enabled;
     data["status"] = st.status;
     data["ssid"] = st.ssid;
     data["ip"] = st.ip;

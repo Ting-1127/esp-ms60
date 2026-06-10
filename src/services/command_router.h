@@ -26,6 +26,8 @@ private:
     static String handle_diag_status(const ControlRequest& request, const RuntimeStatus& status);
     static String handle_sys_reboot(const ControlRequest& request);
 
+    static String handle_wifi_on(const ControlRequest& request, const RuntimeStatus& status);
+    static String handle_wifi_off(const ControlRequest& request, const RuntimeStatus& status);
     static String handle_wifi_set(const ControlRequest& request, const RuntimeStatus& status);
     static String handle_wifi_connect(const ControlRequest& request, const RuntimeStatus& status);
     static String handle_wifi_disconnect(const ControlRequest& request, const RuntimeStatus& status);
