@@ -9,3 +9,4 @@
 #include "system_config.h"
 #include "ble_config.h"
 #include "protocol_config.h"
+#include "firmware_config.h"

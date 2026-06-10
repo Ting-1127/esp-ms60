@@ -8,8 +8,13 @@
 #include "project.h"
 #include "services/control_protocol.h"
 
+class WifiModule;
+class OtaModule;
+
 struct RuntimeStatus {
     bool ble_connected;
+    WifiModule* wifi = nullptr;
+    OtaModule* ota = nullptr;
 };
 
 class CommandRouter {
@@ -20,4 +25,14 @@ private:
     static String handle_sys_info(const ControlRequest& request);
     static String handle_diag_status(const ControlRequest& request, const RuntimeStatus& status);
     static String handle_sys_reboot(const ControlRequest& request);
+
+    static String handle_wifi_set(const ControlRequest& request, const RuntimeStatus& status);
+    static String handle_wifi_connect(const ControlRequest& request, const RuntimeStatus& status);
+    static String handle_wifi_disconnect(const ControlRequest& request, const RuntimeStatus& status);
+    static String handle_wifi_status(const ControlRequest& request, const RuntimeStatus& status);
+
+    static String handle_ota_check(const ControlRequest& request);
+    static String handle_ota_start(const ControlRequest& request, const RuntimeStatus& status);
+    static String handle_ota_status(const ControlRequest& request, const RuntimeStatus& status);
+    static String handle_ota_cancel(const ControlRequest& request, const RuntimeStatus& status);
 };

@@ -1,4 +1,6 @@
 #include "ble_control_module.h"
+#include "modules/wifi_module/wifi_module.h"
+#include "modules/ota_module/ota_module.h"
 #include <string>
 
 class BleControlModule::ServerCallbacks : public NimBLEServerCallbacks {
@@ -81,6 +83,18 @@ void BleControlModule::loop() {
         send_ready_event();
         _ready_event_sent = true;
     }
+
+    // 轮询 WiFi/OTA 事件
+    if (_connected) {
+        auto& wifi = WifiModule::instance();
+        auto& ota = OtaModule::instance();
+        if (wifi.has_pending_event()) {
+            notify_control(wifi.take_pending_event());
+        }
+        if (ota.has_pending_event()) {
+            notify_control(ota.take_pending_event());
+        }
+    }
 }
 
 void BleControlModule::on_connected() {
@@ -156,7 +170,7 @@ void BleControlModule::process_pending_rx() {
     LOG_INFO("BLE控制", "RX cmd=%s id=%s len=%u",
              request.cmd.c_str(), request.id.c_str(), (unsigned)input.length());
 
-    RuntimeStatus status{_connected};
+    RuntimeStatus status{_connected, &WifiModule::instance(), &OtaModule::instance()};
     String response = CommandRouter::handle(request, status);
     notify_control(response);
 }

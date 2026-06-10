@@ -10,6 +10,8 @@
 #include "drivers/ws2812_status_led.h"
 #include "modules/ble_control/ble_control_module.h"
 #include "modules/system_monitor/system_monitor.h"
+#include "modules/wifi_module/wifi_module.h"
+#include "modules/ota_module/ota_module.h"
 #include "services/service_manager.h"
 
 // ===================== 全局驱动 ================================
@@ -41,6 +43,8 @@ void setup() {
     // ---- 3. 模块注册 & 启动 ----
     auto& sm = ServiceManager::instance();
     sm.register_module(&SystemMonitor::instance());
+    sm.register_module(&WifiModule::instance());
+    sm.register_module(&OtaModule::instance());
     sm.register_module(&BleControlModule::instance());
     sm.begin_all();
 

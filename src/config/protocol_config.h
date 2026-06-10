@@ -26,3 +26,19 @@
 #define PROTO_CMD_DIAG_STATUS        "diag.status"
 
 #define PROTO_EVT_SYS_READY          "sys.ready"
+
+// WiFi 命令
+#define PROTO_CMD_WIFI_SET           "wifi.set"
+#define PROTO_CMD_WIFI_CONNECT       "wifi.connect"
+#define PROTO_CMD_WIFI_DISCONNECT    "wifi.disconnect"
+#define PROTO_CMD_WIFI_STATUS        "wifi.status"
+
+// OTA 命令
+#define PROTO_CMD_OTA_CHECK          "ota.check"
+#define PROTO_CMD_OTA_START          "ota.start"
+#define PROTO_CMD_OTA_STATUS         "ota.status"
+#define PROTO_CMD_OTA_CANCEL         "ota.cancel"
+
+// WiFi/OTA 事件
+#define PROTO_EVT_WIFI_STATUS_CHANGED "wifi.status_changed"
+#define PROTO_EVT_OTA_PROGRESS        "ota.progress"
