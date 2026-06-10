@@ -33,6 +33,7 @@ private:
 
     void set_state(State s, int progress = 0, const String& msg = "");
     void run_ota();
+    static void ota_task(void* param);
 
     State _state = State::Idle;
     int _progress = 0;

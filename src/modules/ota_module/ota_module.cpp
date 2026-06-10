@@ -31,8 +31,13 @@ bool OtaModule::start(const String& url, const String& version, const String& sh
     _cancel_flag = false;
 
     LOG_INFO("OTA模块", "开始升级: url=%s ver=%s", url.c_str(), version.c_str());
-    run_ota();
+    xTaskCreatePinnedToCore(ota_task, "ota_task", 8192, this, 1, nullptr, 0);
     return true;
+}
+
+void OtaModule::ota_task(void* param) {
+    static_cast<OtaModule*>(param)->run_ota();
+    vTaskDelete(nullptr);
 }
 
 void OtaModule::cancel() {
