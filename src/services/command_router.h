@@ -13,8 +13,8 @@ class OtaModule;
 
 struct RuntimeStatus {
     bool ble_connected;
-    WifiModule* wifi = nullptr;
-    OtaModule* ota = nullptr;
+    WifiModule* wifi;
+    OtaModule* ota;
 };
 
 class CommandRouter {
