@@ -4,6 +4,7 @@
 #include <HTTPClient.h>
 #include <Update.h>
 #include <WiFi.h>
+#include <WiFiClientSecure.h>
 
 bool OtaModule::begin() {
     LOG_INFO("OTA模块", "初始化");
@@ -81,9 +82,13 @@ void OtaModule::set_state(State s, int progress, const String& msg) {
 }
 
 void OtaModule::run_ota() {
+    WiFiClientSecure client;
+    client.setInsecure();
     HTTPClient http;
-    http.begin(_url);
+    http.begin(client, _url);
     http.setFollowRedirects(HTTPC_STRICT_FOLLOW_REDIRECTS);
+    http.setConnectTimeout(15000);
+    http.setTimeout(15000);
     int httpCode = http.GET();
 
     if (httpCode != 200) {
