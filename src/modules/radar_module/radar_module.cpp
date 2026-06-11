@@ -65,6 +65,11 @@ bool RadarModule::begin() {
 void RadarModule::loop() {
     process_uart_data();
 
+    // 超时检查（独立于数据接收，每轮都执行）
+    if (_last_data_time > 0 && millis() - _last_data_time > BSD_DATA_TIMEOUT_MS) {
+        bsd_warning_clear();
+    }
+
     // 定期发送 bsd.status 事件
     unsigned long now = millis();
     if (now - _last_event_ms >= EVENT_INTERVAL_MS) {
@@ -444,11 +449,6 @@ void RadarModule::bsd_warning_update() {
                 _zone_level_prev[i] = _zone_level[i];
             }
         }
-    }
-
-    // 数据超时检查
-    if (millis() - _last_data_time > BSD_DATA_TIMEOUT_MS) {
-        bsd_warning_clear();
     }
 }
 
