@@ -27,6 +27,8 @@ String CommandRouter::handle(const ControlRequest& request, const RuntimeStatus&
 
     // BSD
     if (request.cmd == PROTO_CMD_BSD_STATUS)       return handle_bsd_status(request, status);
+    if (request.cmd == PROTO_CMD_BSD_CONFIG)       return handle_bsd_config(request, status);
+    if (request.cmd == PROTO_CMD_BSD_CONFIG_GET)   return handle_bsd_config_get(request, status);
 
     return ControlProtocol::make_empty_response(request.id,
                                                 false,
@@ -241,9 +243,72 @@ String CommandRouter::handle_bsd_status(const ControlRequest& request, const Run
     if (!status.radar) {
         return ControlProtocol::make_empty_response(request.id, false, PROTO_CODE_INTERNAL_ERROR, "Radar module unavailable");
     }
-    StaticJsonDocument<128> data;
+    StaticJsonDocument<256> data;
     data["radar_ok"] = status.radar->is_radar_ok();
     data["target_count"] = status.radar->get_target_count();
     data["last_update_ms"] = status.radar->get_last_update_ms();
+
+    JsonObject left = data.createNestedObject("left");
+    left["level"] = (uint8_t)status.radar->get_zone_level(BSD_ZONE_LEFT);
+    left["lca_level"] = (uint8_t)status.radar->get_zone_lca_level(BSD_ZONE_LEFT);
+
+    JsonObject right = data.createNestedObject("right");
+    right["level"] = (uint8_t)status.radar->get_zone_level(BSD_ZONE_RIGHT);
+    right["lca_level"] = (uint8_t)status.radar->get_zone_lca_level(BSD_ZONE_RIGHT);
+
+    JsonObject rear = data.createNestedObject("rear");
+    rear["level"] = (uint8_t)status.radar->get_zone_level(BSD_ZONE_REAR);
+
+    return ControlProtocol::make_response(request.id, true, PROTO_CODE_OK, "OK", data.as<JsonVariantConst>());
+}
+
+static void apply_bsd_config_field(const char* key, JsonVariantConst val, BsdConfig& cfg) {
+    if (!key) return;
+    if (strcmp(key, "level1_dist") == 0)      cfg.level1_dist = val.as<int32_t>();
+    else if (strcmp(key, "level2_dist") == 0)  cfg.level2_dist = val.as<int32_t>();
+    else if (strcmp(key, "level3_dist") == 0)  cfg.level3_dist = val.as<int32_t>();
+    else if (strcmp(key, "rcw_half_width") == 0) cfg.rcw_half_width = val.as<int32_t>();
+    else if (strcmp(key, "lca_outer_edge") == 0) cfg.lca_outer_edge = val.as<int32_t>();
+    else if (strcmp(key, "angle_dead_zone") == 0) cfg.angle_dead_zone = val.as<int8_t>();
+    else if (strcmp(key, "ttc_threshold") == 0) cfg.ttc_threshold = val.as<uint8_t>();
+    else if (strcmp(key, "sensitivity") == 0)   cfg.sensitivity = val.as<uint8_t>();
+}
+
+static void bsd_config_to_json(StaticJsonDocument<256>& data, const BsdConfig& cfg) {
+    data["level1_dist"] = cfg.level1_dist;
+    data["level2_dist"] = cfg.level2_dist;
+    data["level3_dist"] = cfg.level3_dist;
+    data["rcw_half_width"] = cfg.rcw_half_width;
+    data["lca_outer_edge"] = cfg.lca_outer_edge;
+    data["angle_dead_zone"] = cfg.angle_dead_zone;
+    data["ttc_threshold"] = cfg.ttc_threshold;
+    data["sensitivity"] = cfg.sensitivity;
+}
+
+String CommandRouter::handle_bsd_config(const ControlRequest& request, const RuntimeStatus& status) {
+    if (!status.radar) {
+        return ControlProtocol::make_empty_response(request.id, false, PROTO_CODE_INTERNAL_ERROR, "Radar module unavailable");
+    }
+    BsdConfig cfg = status.radar->get_config();
+
+    // 遍历 payload 中的字段逐个应用
+    JsonObject payload = request.payload;
+    for (JsonPair kv : payload) {
+        apply_bsd_config_field(kv.key().c_str(), kv.value(), cfg);
+    }
+
+    status.radar->set_config(cfg);
+
+    StaticJsonDocument<256> data;
+    bsd_config_to_json(data, status.radar->get_config());
+    return ControlProtocol::make_response(request.id, true, PROTO_CODE_OK, "OK", data.as<JsonVariantConst>());
+}
+
+String CommandRouter::handle_bsd_config_get(const ControlRequest& request, const RuntimeStatus& status) {
+    if (!status.radar) {
+        return ControlProtocol::make_empty_response(request.id, false, PROTO_CODE_INTERNAL_ERROR, "Radar module unavailable");
+    }
+    StaticJsonDocument<256> data;
+    bsd_config_to_json(data, status.radar->get_config());
     return ControlProtocol::make_response(request.id, true, PROTO_CODE_OK, "OK", data.as<JsonVariantConst>());
 }

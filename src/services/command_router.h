@@ -41,4 +41,6 @@ private:
     static String handle_ota_cancel(const ControlRequest& request, const RuntimeStatus& status);
 
     static String handle_bsd_status(const ControlRequest& request, const RuntimeStatus& status);
+    static String handle_bsd_config(const ControlRequest& request, const RuntimeStatus& status);
+    static String handle_bsd_config_get(const ControlRequest& request, const RuntimeStatus& status);
 };

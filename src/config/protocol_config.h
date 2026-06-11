@@ -47,4 +47,6 @@
 
 // BSD 雷达命令/事件
 #define PROTO_CMD_BSD_STATUS          "bsd.status"
-#define PROTO_EVT_BSD_DETECTED        "bsd.detected"
+#define PROTO_CMD_BSD_CONFIG          "bsd.config"
+#define PROTO_CMD_BSD_CONFIG_GET      "bsd.config.get"
+#define PROTO_EVT_BSD_STATUS          "bsd.status"
