@@ -70,7 +70,7 @@ void RadarModule::loop() {
     if (now - _last_event_ms >= EVENT_INTERVAL_MS) {
         _last_event_ms = now;
 
-        StaticJsonDocument<384> doc;
+        StaticJsonDocument<768> doc;
         doc["proto"] = PROTO_VERSION;
         doc["type"] = PROTO_TYPE_EVT;
         doc["event"] = PROTO_EVT_BSD_STATUS;
@@ -90,6 +90,14 @@ void RadarModule::loop() {
 
         data["target_count"] = _raw_count;
         data["radar_ok"] = _radar_ok;
+
+        JsonArray targets = data.createNestedArray("targets");
+        for (uint8_t i = 0; i < _target_info_count; i++) {
+            JsonObject t = targets.createNestedObject();
+            t["angle"] = _target_info[i].angle;
+            t["dist_m"] = _target_info[i].dist_m;
+            t["level"] = _target_info[i].level;
+        }
 
         String json;
         serializeJson(doc, json);
@@ -327,6 +335,7 @@ void RadarModule::bsd_warning_update() {
         _zone_level[i] = BSD_LEVEL_NONE;
         _zone_lca_level[i] = BSD_LEVEL_NONE;
     }
+    _target_info_count = 0;
 
     _last_data_time = millis();
     uint16_t stable_mask = target_track_update();
@@ -409,6 +418,14 @@ void RadarModule::bsd_warning_update() {
             }
         } else {
             target_set_dead_zone_flag(target_id, 0);
+        }
+
+        // 记录目标信息给 BLE
+        if (_target_info_count < TARGET_MAX) {
+            _target_info[_target_info_count].angle = angle;
+            _target_info[_target_info_count].dist_m = _raw_targets[i].distance;
+            _target_info[_target_info_count].level = (uint8_t)dist_level;
+            _target_info_count++;
         }
     }
 

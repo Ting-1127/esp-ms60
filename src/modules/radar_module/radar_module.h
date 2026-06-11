@@ -121,6 +121,13 @@ private:
         int8_t  speed_prev;
     };
 
+    // 输出给 BLE 的目标信息
+    struct BsdTargetInfo {
+        int8_t  angle;    // 原始角度 °
+        uint8_t dist_m;   // 距离 m
+        uint8_t level;    // 预警等级
+    };
+
     void bsd_warning_update();
     void bsd_warning_clear();
     BsdLevel get_level_by_distance(int32_t y_mm) const;
@@ -139,6 +146,10 @@ private:
     uint8_t _raw_count = 0;
     bool _radar_ok = false;
     unsigned long _last_update_ms = 0;
+
+    // 输出给 BLE 的目标信息
+    BsdTargetInfo _target_info[TARGET_MAX];
+    uint8_t _target_info_count = 0;
 
     // 目标跟踪
     TargetTrack _tracks[TARGET_MAX_TRACK];
