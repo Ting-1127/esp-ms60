@@ -1,6 +1,7 @@
 #include "command_router.h"
 #include "modules/wifi_module/wifi_module.h"
 #include "modules/ota_module/ota_module.h"
+#include "modules/radar_module/radar_module.h"
 #include <HTTPClient.h>
 #include <ArduinoJson.h>
 #include <WiFi.h>
@@ -23,6 +24,9 @@ String CommandRouter::handle(const ControlRequest& request, const RuntimeStatus&
     if (request.cmd == PROTO_CMD_OTA_START)        return handle_ota_start(request, status);
     if (request.cmd == PROTO_CMD_OTA_STATUS)       return handle_ota_status(request, status);
     if (request.cmd == PROTO_CMD_OTA_CANCEL)       return handle_ota_cancel(request, status);
+
+    // BSD
+    if (request.cmd == PROTO_CMD_BSD_STATUS)       return handle_bsd_status(request, status);
 
     return ControlProtocol::make_empty_response(request.id,
                                                 false,
@@ -229,4 +233,17 @@ String CommandRouter::handle_ota_cancel(const ControlRequest& request, const Run
     }
     status.ota->cancel();
     return ControlProtocol::make_empty_response(request.id, true, PROTO_CODE_OK, "ota cancelled");
+}
+
+// ─── BSD ────────────────────────────────────────────────────────────
+
+String CommandRouter::handle_bsd_status(const ControlRequest& request, const RuntimeStatus& status) {
+    if (!status.radar) {
+        return ControlProtocol::make_empty_response(request.id, false, PROTO_CODE_INTERNAL_ERROR, "Radar module unavailable");
+    }
+    StaticJsonDocument<128> data;
+    data["radar_ok"] = status.radar->is_radar_ok();
+    data["target_count"] = status.radar->get_target_count();
+    data["last_update_ms"] = status.radar->get_last_update_ms();
+    return ControlProtocol::make_response(request.id, true, PROTO_CODE_OK, "OK", data.as<JsonVariantConst>());
 }

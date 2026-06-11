@@ -23,6 +23,8 @@
 #define PIN_UART0_RX        44      // U0RXD (蓝:RX)
 #define PIN_UART1_TX        17      // 备用串口 (RTC)
 #define PIN_UART1_RX        18      // 备用串口 (RTC)
+#define PIN_UART2_TX        16      // 雷达 MS60 UART (RTC)
+#define PIN_UART2_RX        15      // 雷达 MS60 UART (RTC)
 
 // ===================== I2C (避开 USB 和 RTC 高频脚) ============
 #define PIN_I2C_SDA         4       // RTC_GPIO4

@@ -6,7 +6,7 @@
  */
 
 #define FW_NAME              "esp-ms60"
-#define FW_VERSION           "0.1.9"
+#define FW_VERSION           "0.2.0"
 #define FW_BOARD             "ESP32-S3-N16R8"
 #define FW_BUILD_DATE        __DATE__
 #define FW_BUILD_TIME        __TIME__

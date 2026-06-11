@@ -1,6 +1,7 @@
 #include "ble_control_module.h"
 #include "modules/wifi_module/wifi_module.h"
 #include "modules/ota_module/ota_module.h"
+#include "modules/radar_module/radar_module.h"
 #include <string>
 
 class BleControlModule::ServerCallbacks : public NimBLEServerCallbacks {
@@ -88,11 +89,15 @@ void BleControlModule::loop() {
     if (_connected) {
         auto& wifi = WifiModule::instance();
         auto& ota = OtaModule::instance();
+        auto& radar = RadarModule::instance();
         if (wifi.has_pending_event()) {
             notify_control(wifi.take_pending_event());
         }
         if (ota.has_pending_event()) {
             notify_control(ota.take_pending_event());
+        }
+        if (radar.has_pending_event()) {
+            notify_data(radar.take_pending_event());
         }
     }
 }
@@ -170,7 +175,7 @@ void BleControlModule::process_pending_rx() {
     LOG_INFO("BLE控制", "RX cmd=%s id=%s len=%u",
              request.cmd.c_str(), request.id.c_str(), (unsigned)input.length());
 
-    RuntimeStatus status{_connected, &WifiModule::instance(), &OtaModule::instance()};
+    RuntimeStatus status{_connected, &WifiModule::instance(), &OtaModule::instance(), &RadarModule::instance()};
     String response = CommandRouter::handle(request, status);
     notify_control(response);
 }

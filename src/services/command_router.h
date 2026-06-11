@@ -10,11 +10,13 @@
 
 class WifiModule;
 class OtaModule;
+class RadarModule;
 
 struct RuntimeStatus {
     bool ble_connected;
     WifiModule* wifi;
     OtaModule* ota;
+    RadarModule* radar;
 };
 
 class CommandRouter {
@@ -37,4 +39,6 @@ private:
     static String handle_ota_start(const ControlRequest& request, const RuntimeStatus& status);
     static String handle_ota_status(const ControlRequest& request, const RuntimeStatus& status);
     static String handle_ota_cancel(const ControlRequest& request, const RuntimeStatus& status);
+
+    static String handle_bsd_status(const ControlRequest& request, const RuntimeStatus& status);
 };

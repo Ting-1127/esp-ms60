@@ -44,3 +44,7 @@
 // WiFi/OTA 事件
 #define PROTO_EVT_WIFI_STATUS_CHANGED "wifi.status_changed"
 #define PROTO_EVT_OTA_PROGRESS        "ota.progress"
+
+// BSD 雷达命令/事件
+#define PROTO_CMD_BSD_STATUS          "bsd.status"
+#define PROTO_EVT_BSD_DETECTED        "bsd.detected"
