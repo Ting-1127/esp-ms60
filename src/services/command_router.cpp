@@ -292,8 +292,8 @@ String CommandRouter::handle_bsd_config(const ControlRequest& request, const Run
     BsdConfig cfg = status.radar->get_config();
 
     // 遍历 payload 中的字段逐个应用
-    JsonObject payload = request.payload;
-    for (JsonPair kv : payload) {
+    JsonObjectConst payload = request.payload.as<JsonObjectConst>();
+    for (JsonPairConst kv : payload) {
         apply_bsd_config_field(kv.key().c_str(), kv.value(), cfg);
     }
 
