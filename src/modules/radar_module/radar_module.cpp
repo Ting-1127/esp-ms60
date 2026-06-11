@@ -326,6 +326,7 @@ void RadarModule::bsd_warning_clear() {
         _zone_level_prev[i] = BSD_LEVEL_NONE;
         _zone_level_hold[i] = 0;
     }
+    _target_info_count = 0;
     _last_data_time = 0;
 }
 
